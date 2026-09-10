@@ -1,0 +1,72 @@
+{
+  "name": "invoice-desk",
+  "version": "0.0.0",
+  "description": "Supplier invoice approval workspace — Angular 21, zoneless, standalone. Portfolio project.",
+  "private": true,
+  "packageManager": "npm@12.0.2",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "lint": "ng lint",
+    "lint:fix": "ng lint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "e2e": "cypress run",
+    "e2e:open": "cypress open",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "@ngrx/signals": "^21.1.1",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.24",
+    "@angular/cli": "^21.2.24",
+    "@angular/compiler-cli": "^21.2.0",
+    "@eslint/js": "^10.0.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.20.2",
+    "angular-eslint": "21.4.0",
+    "cypress": "^16.0.0",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "jest": "^30.5.1",
+    "jest-preset-angular": "^17.0.0",
+    "jsdom": "^28.0.0",
+    "lint-staged": "^17.5.1",
+    "msw": "^2.15.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "8.59.2"
+  },
+  "lint-staged": {
+    "*.{ts,html}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,mjs,json,scss,css,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}

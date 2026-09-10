@@ -1,0 +1,17 @@
+# Build output
+dist/
+coverage/
+out-tsc/
+.angular/
+
+# Dependencies
+node_modules/
+
+# Generated / vendored
+public/mockServiceWorker.js
+package-lock.json
+
+# Cypress artifacts
+cypress/downloads/
+cypress/screenshots/
+cypress/videos/
