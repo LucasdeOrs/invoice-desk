@@ -1,0 +1,35 @@
+<header class="page-head">
+  <h1>Invoices</h1>
+  <p class="page-head__sub">
+    Read-only preview from the mock API. Sorting, filtering and pagination land in week 2.
+  </p>
+</header>
+
+@if (loading()) {
+  <p class="muted">Loading…</p>
+} @else {
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Number</th>
+          <th scope="col">Supplier</th>
+          <th scope="col" class="table__num">Amount</th>
+          <th scope="col">Status</th>
+          <th scope="col">Issued</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (invoice of invoices(); track invoice.id) {
+          <tr>
+            <td>{{ invoice.number }}</td>
+            <td>{{ invoice.supplier }}</td>
+            <td class="table__num">{{ invoice.amount | currency: invoice.currency }}</td>
+            <td>{{ statusLabels[invoice.status] }}</td>
+            <td>{{ invoice.issuedOn | date: 'mediumDate' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

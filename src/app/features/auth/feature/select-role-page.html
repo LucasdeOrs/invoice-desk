@@ -1,0 +1,28 @@
+<main class="select-role">
+  <div class="card">
+    <h1 class="card__title">Choose a role</h1>
+    <p class="card__lead">
+      This demo has no login — pick a role to explore the app. You can switch any time from the
+      header.
+    </p>
+
+    <ul class="role-list">
+      @for (role of roles; track role) {
+        <li>
+          <button
+            type="button"
+            class="role"
+            [class.role--current]="role === activeRole()"
+            (click)="choose(role)"
+          >
+            <span class="role__name">{{ labels[role] }}</span>
+            <span class="role__desc">{{ descriptions[role] }}</span>
+            @if (role === activeRole()) {
+              <span class="role__badge">Current</span>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  </div>
+</main>
