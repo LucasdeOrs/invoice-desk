@@ -1,0 +1,29 @@
+<header class="page-head">
+  <h1>Dashboard</h1>
+  @if (userName(); as name) {
+    <p class="page-head__sub">Signed in as {{ name }}</p>
+  }
+</header>
+
+@if (loading()) {
+  <p class="muted">Loading…</p>
+} @else {
+  <div class="stats">
+    <article class="stat">
+      <span class="stat__value">{{ total() }}</span>
+      <span class="stat__label">Invoices</span>
+    </article>
+    <article class="stat">
+      <span class="stat__value">{{ pending() }}</span>
+      <span class="stat__label">Pending approval</span>
+    </article>
+    <article class="stat">
+      <span class="stat__value">{{ approved() }}</span>
+      <span class="stat__label">Approved</span>
+    </article>
+  </div>
+
+  <p class="muted">
+    The full invoice workspace — server-side filtering, sorting and pagination — arrives in week 2.
+  </p>
+}
