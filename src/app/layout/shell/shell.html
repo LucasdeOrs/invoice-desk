@@ -1,0 +1,31 @@
+<div class="shell">
+  <app-shell-header
+    class="shell__header"
+    [user]="user()"
+    [activeRole]="activeRole()"
+    [availableRoles]="availableRoles()"
+    (toggleSidebar)="toggleSidebar()"
+    (roleChange)="changeRole($event)"
+    (signOut)="signOut()"
+  />
+
+  @if (sidebarOpen()) {
+    <button
+      type="button"
+      class="shell__scrim"
+      aria-label="Close navigation menu"
+      (click)="closeSidebar()"
+    ></button>
+  }
+
+  <app-shell-sidebar
+    class="shell__sidebar"
+    [items]="navItems()"
+    [open]="sidebarOpen()"
+    (navigated)="closeSidebar()"
+  />
+
+  <main class="shell__content" id="main-content">
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,19 @@
+<nav class="nav" aria-label="Primary">
+  <ul class="nav__list">
+    @for (item of items(); track item.path) {
+      @if (!item.hidden) {
+        <li>
+          <a
+            class="nav__link"
+            [routerLink]="item.path"
+            routerLinkActive="nav__link--active"
+            ariaCurrentWhenActive="page"
+            (click)="navigated.emit()"
+          >
+            {{ item.label }}
+          </a>
+        </li>
+      }
+    }
+  </ul>
+</nav>

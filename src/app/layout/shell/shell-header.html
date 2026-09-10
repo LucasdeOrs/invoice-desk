@@ -1,0 +1,31 @@
+<header class="header">
+  <button
+    type="button"
+    class="header__menu"
+    aria-label="Toggle navigation menu"
+    (click)="toggleSidebar.emit()"
+  >
+    <span class="header__menu-icon" aria-hidden="true"></span>
+  </button>
+
+  <span class="header__brand">Invoice Desk</span>
+
+  <span class="header__spacer"></span>
+
+  @if (activeRole(); as role) {
+    <label class="header__role">
+      <span class="header__role-caption">Acting as</span>
+      <select [value]="role" (change)="onRoleSelected($event)">
+        @for (option of availableRoles(); track option) {
+          <option [value]="option">{{ roleLabels[option] }}</option>
+        }
+      </select>
+    </label>
+  }
+
+  @if (user(); as currentUser) {
+    <span class="header__user" [title]="currentUser.email">{{ currentUser.name }}</span>
+  }
+
+  <button type="button" class="header__signout" (click)="signOut.emit()">Sign out</button>
+</header>
