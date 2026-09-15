@@ -1,73 +1,80 @@
 import type { InvoiceSummary } from '@features/invoices/data/invoice-summary.model';
+import type { InvoiceStatus } from '@features/invoices/data/invoice.model';
 
 /**
- * Fixed set of invoices served by the mock API in week 1.
+ * A deterministically generated set of invoices for the mock API.
  *
- * Week 2 replaces this with a generated dataset behind server-side pagination,
- * filtering and sorting.
+ * Real enough to make server-side filtering, sorting and pagination visible —
+ * a handful of hand-typed rows would just page through everything at once.
+ * Seeded so the dataset is identical on every run (dev, tests, CI, the demo).
  */
-export const INVOICES_FIXTURE: InvoiceSummary[] = [
-  {
-    id: 'inv-1001',
-    number: 'INV-1001',
-    supplier: 'Atlas Office Supplies',
-    amount: 1284.5,
-    currency: 'EUR',
-    status: 'pending_approval',
-    issuedOn: '2026-08-14',
-  },
-  {
-    id: 'inv-1002',
-    number: 'INV-1002',
-    supplier: 'Northwind Logistics',
-    amount: 8710.0,
-    currency: 'EUR',
-    status: 'pending_approval',
-    issuedOn: '2026-08-19',
-  },
-  {
-    id: 'inv-1003',
-    number: 'INV-1003',
-    supplier: 'Brightline Software',
-    amount: 4200.0,
-    currency: 'EUR',
-    status: 'approved',
-    issuedOn: '2026-07-30',
-  },
-  {
-    id: 'inv-1004',
-    number: 'INV-1004',
-    supplier: 'Cedar & Co. Consulting',
-    amount: 15750.75,
-    currency: 'EUR',
-    status: 'submitted',
-    issuedOn: '2026-08-22',
-  },
-  {
-    id: 'inv-1005',
-    number: 'INV-1005',
-    supplier: 'Atlas Office Supplies',
-    amount: 342.9,
-    currency: 'EUR',
-    status: 'approved',
-    issuedOn: '2026-08-02',
-  },
-  {
-    id: 'inv-1006',
-    number: 'INV-1006',
-    supplier: 'Meridian Facilities',
-    amount: 990.0,
-    currency: 'EUR',
-    status: 'rejected',
-    issuedOn: '2026-07-25',
-  },
-  {
-    id: 'inv-1007',
-    number: 'INV-1007',
-    supplier: 'Northwind Logistics',
-    amount: 2560.4,
-    currency: 'EUR',
-    status: 'draft',
-    issuedOn: '2026-08-27',
-  },
+
+const SUPPLIERS = [
+  'Atlas Office Supplies',
+  'Northwind Logistics',
+  'Brightline Software',
+  'Cedar & Co. Consulting',
+  'Meridian Facilities',
+  'Harbor Print & Design',
+  'Quillon Legal Services',
+  'Fernbank Catering',
+  'Solace IT Solutions',
+  'Ironwood Freight',
 ];
+
+const STATUS_WEIGHTS: readonly (readonly [InvoiceStatus, number])[] = [
+  ['draft', 1],
+  ['submitted', 2],
+  ['pending_approval', 3],
+  ['approved', 5],
+  ['rejected', 1],
+];
+
+/** Small seeded PRNG (mulberry32) — no dependency, good enough for fixture data. */
+function mulberry32(seed: number): () => number {
+  let state = seed;
+  return () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function pickWeighted<T>(random: () => number, weighted: readonly (readonly [T, number])[]): T {
+  const total = weighted.reduce((sum, [, weight]) => sum + weight, 0);
+  let roll = random() * total;
+  for (const [value, weight] of weighted) {
+    roll -= weight;
+    if (roll <= 0) {
+      return value;
+    }
+  }
+  return weighted[weighted.length - 1][0];
+}
+
+function generateInvoices(count: number): InvoiceSummary[] {
+  const random = mulberry32(20260501);
+  const baseDate = Date.UTC(2026, 4, 1); // 2026-05-01
+  const spanDays = 140;
+
+  return Array.from({ length: count }, (_, index) => {
+    const supplier = SUPPLIERS[Math.floor(random() * SUPPLIERS.length)];
+    const status = pickWeighted(random, STATUS_WEIGHTS);
+    const amount = Math.round((80 + random() * 19_920) * 100) / 100;
+    const dayOffset = Math.floor(random() * spanDays);
+    const issuedOn = new Date(baseDate + dayOffset * 86_400_000).toISOString().slice(0, 10);
+
+    return {
+      id: `inv-${1001 + index}`,
+      number: `INV-${1001 + index}`,
+      supplier,
+      amount,
+      currency: 'EUR',
+      status,
+      issuedOn,
+    };
+  });
+}
+
+export const INVOICES_FIXTURE: InvoiceSummary[] = generateInvoices(64);

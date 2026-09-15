@@ -4,17 +4,17 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '@core/auth/auth.service';
 import { API_BASE_URL } from '@core/config/api.config';
-import { InvoiceSummary } from '@features/invoices/data/invoice-summary.model';
 
-interface InvoiceListResponse {
-  items: InvoiceSummary[];
+interface DashboardSummary {
   total: number;
+  pending: number;
+  approved: number;
 }
 
 /**
- * Week 1 dashboard: proves both mock endpoints respond by greeting the user
- * from `/api/session` and summarising `/api/invoices`. Week 2 moves the reads
- * into the Signal Store.
+ * Greets the user from `/api/session` and shows counts from
+ * `/api/dashboard/summary` — a dedicated endpoint, not a client-side count
+ * over the (now paginated) invoice list.
  */
 @Component({
   selector: 'app-dashboard-page',
@@ -29,18 +29,13 @@ export class DashboardPage {
 
   protected readonly userName = computed(() => this.auth.user()?.name ?? null);
 
-  private readonly response = toSignal(
-    this.http.get<InvoiceListResponse>(`${this.apiBaseUrl}/invoices`),
+  private readonly summary = toSignal(
+    this.http.get<DashboardSummary>(`${this.apiBaseUrl}/dashboard/summary`),
     { initialValue: null },
   );
 
-  protected readonly loading = computed(() => this.response() === null);
-  protected readonly total = computed(() => this.response()?.total ?? 0);
-  protected readonly pending = computed(
-    () =>
-      this.response()?.items.filter((invoice) => invoice.status === 'pending_approval').length ?? 0,
-  );
-  protected readonly approved = computed(
-    () => this.response()?.items.filter((invoice) => invoice.status === 'approved').length ?? 0,
-  );
+  protected readonly loading = computed(() => this.summary() === null);
+  protected readonly total = computed(() => this.summary()?.total ?? 0);
+  protected readonly pending = computed(() => this.summary()?.pending ?? 0);
+  protected readonly approved = computed(() => this.summary()?.approved ?? 0);
 }
