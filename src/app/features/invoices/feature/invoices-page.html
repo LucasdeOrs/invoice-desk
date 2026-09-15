@@ -1,35 +1,46 @@
 <header class="page-head">
   <h1>Invoices</h1>
   <p class="page-head__sub">
-    Read-only preview from the mock API. Sorting, filtering and pagination land in week 2.
+    {{ store.total() }} invoice{{ store.total() === 1 ? '' : 's' }}, filtered and sorted
+    server-side.
+    @if (store.isLoading() && !store.isEmpty()) {
+      <span class="page-head__updating">· updating…</span>
+    }
   </p>
 </header>
 
-@if (loading()) {
-  <p class="muted">Loading…</p>
-} @else {
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Number</th>
-          <th scope="col">Supplier</th>
-          <th scope="col" class="table__num">Amount</th>
-          <th scope="col">Status</th>
-          <th scope="col">Issued</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (invoice of invoices(); track invoice.id) {
-          <tr>
-            <td>{{ invoice.number }}</td>
-            <td>{{ invoice.supplier }}</td>
-            <td class="table__num">{{ invoice.amount | currency: invoice.currency }}</td>
-            <td>{{ statusLabels[invoice.status] }}</td>
-            <td>{{ invoice.issuedOn | date: 'mediumDate' }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+<app-invoices-filter-bar
+  [status]="store.query().status"
+  [supplier]="store.query().supplier"
+  [issuedFrom]="store.query().issuedFrom"
+  [issuedTo]="store.query().issuedTo"
+  (statusChange)="onStatusChange($event)"
+  (supplierChange)="onSupplierChange($event)"
+  (dateRangeChange)="onDateRangeChange($event)"
+  (clear)="onClearFilters()"
+/>
+
+@if (store.isError()) {
+  <div class="state state--error" role="alert">
+    <p>{{ store.error() }}</p>
+    <button type="button" (click)="store.reload()">Try again</button>
   </div>
+} @else if (store.isLoading() && store.items().length === 0) {
+  <p class="state state--loading" role="status">Loading invoices…</p>
+} @else if (store.isEmpty()) {
+  <p class="state state--empty">No invoices match these filters.</p>
+} @else {
+  <app-invoices-table
+    [invoices]="store.items()"
+    [sortBy]="store.query().sortBy"
+    [sortDir]="store.query().sortDir"
+    (sort)="onSort($event)"
+  />
+
+  <app-invoices-pagination
+    [page]="store.query().page"
+    [pageCount]="store.pageCount()"
+    [total]="store.total()"
+    (pageChange)="onPageChange($event)"
+  />
 }

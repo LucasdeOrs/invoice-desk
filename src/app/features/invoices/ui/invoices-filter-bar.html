@@ -1,0 +1,33 @@
+<div class="filters">
+  <label class="field">
+    <span class="field__label">Status</span>
+    <select [value]="status()" (change)="onStatusChange($event)">
+      <option value="all">All</option>
+      @for (option of statuses; track option) {
+        <option [value]="option">{{ statusLabels[option] }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="field">
+    <span class="field__label">Supplier</span>
+    <input
+      type="search"
+      [value]="supplier()"
+      (input)="onSupplierInput($event)"
+      placeholder="Search supplier…"
+    />
+  </label>
+
+  <label class="field">
+    <span class="field__label">Issued from</span>
+    <input type="date" [value]="issuedFrom() ?? ''" (change)="onFromChange($event)" />
+  </label>
+
+  <label class="field">
+    <span class="field__label">Issued to</span>
+    <input type="date" [value]="issuedTo() ?? ''" (change)="onToChange($event)" />
+  </label>
+
+  <button type="button" class="clear" (click)="clear.emit()">Clear filters</button>
+</div>

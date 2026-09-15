@@ -1,47 +1,49 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
-import { API_BASE_URL } from '@core/config/api.config';
-import { InvoiceStatus, InvoiceSummary } from '../data/invoice-summary.model';
-
-interface InvoiceListResponse {
-  items: InvoiceSummary[];
-  total: number;
-}
+import { InvoiceSortField, InvoiceStatusFilter } from '../data/invoices-query.model';
+import { InvoicesStore } from '../data/invoices.store';
+import { DateRange, InvoicesFilterBar } from '../ui/invoices-filter-bar';
+import { InvoicesPagination } from '../ui/invoices-pagination';
+import { InvoicesTable } from '../ui/invoices-table';
 
 /**
- * Week 1 invoice list: a read-only preview straight from the mock API, so the
- * navigation and the second endpoint are demonstrably working. The sortable,
- * filterable, server-paginated table is week 2's job.
+ * The invoice list: filter bar + table + pagination, all driven by
+ * InvoicesStore. Loading, empty and error are distinct, explicit branches —
+ * none of them is "the table, but weird".
  */
 @Component({
   selector: 'app-invoices-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, DatePipe],
+  imports: [InvoicesFilterBar, InvoicesTable, InvoicesPagination],
   templateUrl: './invoices-page.html',
   styleUrl: './invoices-page.scss',
 })
 export class InvoicesPage {
-  private readonly http = inject(HttpClient);
-  private readonly apiBaseUrl = inject(API_BASE_URL);
+  protected readonly store = inject(InvoicesStore);
 
-  private readonly response = toSignal(
-    this.http.get<InvoiceListResponse>(`${this.apiBaseUrl}/invoices`),
-    { initialValue: null },
-  );
+  protected onStatusChange(status: InvoiceStatusFilter): void {
+    this.store.setStatusFilter(status);
+  }
 
-  protected readonly loading = computed(() => this.response() === null);
-  protected readonly invoices = computed<readonly InvoiceSummary[]>(
-    () => this.response()?.items ?? [],
-  );
+  protected onSupplierChange(supplier: string): void {
+    this.store.setSupplierFilter(supplier);
+  }
 
-  protected readonly statusLabels: Record<InvoiceStatus, string> = {
-    draft: 'Draft',
-    submitted: 'Submitted',
-    pending_approval: 'Pending approval',
-    approved: 'Approved',
-    rejected: 'Rejected',
-  };
+  protected onDateRangeChange(range: DateRange): void {
+    this.store.setDateRange(range.issuedFrom, range.issuedTo);
+  }
+
+  protected onClearFilters(): void {
+    this.store.setStatusFilter('all');
+    this.store.setSupplierFilter('');
+    this.store.setDateRange(null, null);
+  }
+
+  protected onSort(field: InvoiceSortField): void {
+    this.store.setSort(field);
+  }
+
+  protected onPageChange(page: number): void {
+    this.store.setPage(page);
+  }
 }
