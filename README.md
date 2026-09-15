@@ -10,9 +10,9 @@ Built as a focused portfolio project to demonstrate **modern corporate Angular**
 single dense codebase — the kind of financial/document workflow system I build
 professionally, exploring patterns I don't reach for day to day.
 
-> **Status:** week 1 of 6 — foundation. Responsive app shell, lazy-loaded routes,
-> simulated role-based auth with guards, and an MSW mock API are in place. The
-> invoice list and its Signal Store come next.
+> **Status:** week 2 of 6 — the invoice list. On top of week 1's foundation:
+> a Signal Store-backed list with real server-side filtering, sorting and
+> pagination. The registration form and the approval workflow come next.
 
 ---
 
@@ -55,7 +55,18 @@ Zone.js patching won't work — which is why state here is signals end to end.
 ceremony of classic NgRx for `withState` / `withComputed` / `withMethods`. The
 cost is a smaller ecosystem and less mature devtools than the Redux-style
 package — acceptable for a store this size, and it keeps the whole app on one
-reactivity primitive.
+reactivity primitive. `InvoicesStore` wires its filter/sort/page state to an
+`rxMethod` with `debounceTime` + `switchMap`: every change re-queries the
+server, and a newer change cancels whatever request was still in flight —
+the same `switchMap` you'd reach for on a type-ahead search.
+
+**On server-side pagination.** `GET /api/invoices` filters, sorts and pages a
+64-row fixture inside the MSW handler (`src/mocks/invoices-query.ts`, unit
+tested on its own) and returns only one page. The obvious shortcut — fetch
+everything, slice it in the component — would make the table and the
+dashboard's counts silently wrong the moment a filter changes, and it's the
+kind of thing that doesn't scale past a toy dataset. The cost is a slightly
+heavier mock handler than `array.slice()`; it's what a real backend would do.
 
 **On MSW.** Interception at the network layer (a real service worker in the
 browser, request interceptors in Node) means the _same_ handlers back the dev
@@ -132,7 +143,7 @@ A pre‑commit hook (Husky + lint‑staged) runs ESLint and Prettier on staged f
 - [x] Lazy-loaded routes (`loadComponent` / `loadChildren`)
 - [x] Simulated role-based auth + `authGuard` / `roleGuard`
 - [x] MSW mock API + CI (lint, test, build)
-- [ ] Invoice list: Signal Store, server-side filter / sort / pagination
+- [x] Invoice list: Signal Store, server-side filter / sort / pagination
 - [ ] Invoice registration form (typed reactive forms, async validator)
 - [ ] Attachment upload + preview
 - [ ] Approval routing by amount band + state machine
