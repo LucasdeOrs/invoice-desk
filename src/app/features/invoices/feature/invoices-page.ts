@@ -4,7 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { API_BASE_URL } from '@core/config/api.config';
-import { InvoiceStatus, InvoiceSummary } from '../data/invoice-summary.model';
+import { InvoiceStatus } from '../data/invoice.model';
+import { InvoiceSummary } from '../data/invoice-summary.model';
 
 interface InvoiceListResponse {
   items: InvoiceSummary[];
