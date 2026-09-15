@@ -1,0 +1,40 @@
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col" [attr.aria-sort]="ariaSort('number')">
+          <button type="button" (click)="sort.emit('number')">
+            Number{{ indicator('number') }}
+          </button>
+        </th>
+        <th scope="col" [attr.aria-sort]="ariaSort('supplier')">
+          <button type="button" (click)="sort.emit('supplier')">
+            Supplier{{ indicator('supplier') }}
+          </button>
+        </th>
+        <th scope="col" class="table__num" [attr.aria-sort]="ariaSort('amount')">
+          <button type="button" (click)="sort.emit('amount')">
+            Amount{{ indicator('amount') }}
+          </button>
+        </th>
+        <th scope="col">Status</th>
+        <th scope="col" [attr.aria-sort]="ariaSort('issuedOn')">
+          <button type="button" (click)="sort.emit('issuedOn')">
+            Issued{{ indicator('issuedOn') }}
+          </button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (invoice of invoices(); track invoice.id) {
+        <tr>
+          <td>{{ invoice.number }}</td>
+          <td>{{ invoice.supplier }}</td>
+          <td class="table__num">{{ invoice.amount | currency: invoice.currency }}</td>
+          <td><app-invoice-status-badge [status]="invoice.status" /></td>
+          <td>{{ invoice.issuedOn | date: 'mediumDate' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
